@@ -2,7 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/com/LetsCode/Aula2Lambda/LambdasEClassesAnonimas" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/com/LetsCode/Aula2Lambda/LambdasEClassesAnonimas/Monitorias" vcs="Git" />
   </component>
 </project>
