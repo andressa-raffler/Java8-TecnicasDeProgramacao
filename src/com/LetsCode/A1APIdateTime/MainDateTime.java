@@ -8,7 +8,8 @@ public class MainDateTime {
     public static void main(String[] args) {
         //exemplosDatas();
        // calcularIdade();
-        zonasFusos();
+      //  zonasFusos();
+
     }
 
     public static void exemplosDatas(){
