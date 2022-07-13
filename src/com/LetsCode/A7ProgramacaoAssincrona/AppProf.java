@@ -1,22 +1,106 @@
 package com.LetsCode.A7ProgramacaoAssincrona;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 public class AppProf {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    private static String API_URL = "http://localhost:8080/api/message";
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
         //exemploClassExecutorService();
         //exemploClassCompletableFuture();
         //exemplo1();
         //completableFutureSemValor();
         //exemploApply();
-        exemploListener();
+       // exemploListener();
+       // exemploCombine();
+        exemploApi();
 
         System.out.println("Fim do método main");
 
         TimeUnit.MINUTES.sleep(1);
     }
+
+    private static void exemploApi() throws IOException, InterruptedException {
+
+        CompletableFuture<Void> future1 = CompletableFuture.supplyAsync(() -> {
+            var client = HttpClient.newHttpClient();
+            var request = HttpRequest.newBuilder(URI.create(API_URL + "?message=Chamada1"))
+                    .build();
+
+            HttpResponse<String> response = null;
+            try {
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return response.body();
+        }).thenAccept(System.out::println);
+
+       // future.get(); //faz com que o main só finalize depois da msg enviada
+
+        CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+            var client = HttpClient.newHttpClient();
+            var request = HttpRequest.newBuilder(URI.create(API_URL + "?message=Chamada2"))
+                    .build();
+
+            HttpResponse<String> response = null;
+            try {
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            return response.body();
+        }).thenAccept(System.out::println); //thenAccept é metodo final,
+
+
+        CompletableFuture.allOf(future1,future2); // "allOf"Aguarde que todas as threads finalizem
+        /*
+        colocar CompletableFuture.allOf(future1,future2).get ai a aplicaçao trava até finalizar as threads
+        e só entao finaliza o método main.
+         */
+    }
+
+    private static void exemploCombine() throws ExecutionException, InterruptedException {
+        CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            return "Olá ";
+        });
+
+        CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            return "Turma";
+        });
+
+        //var future = f1.thenCombine(f2, (resultadoF1, resultadoF2) -> resultadoF1 + resultadoF2);
+        //System.out.println(future.get());
+
+        f1.thenCombine(f2, (resultadoF1, resultadoF2) -> resultadoF1 + resultadoF2)
+                .thenAccept(System.out::println);
+    }
+
+
 
     /* exemploListener 'retorna'void mas chama outro método.  */
     private static void exemploListener() throws ExecutionException, InterruptedException {
